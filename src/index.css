@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  --bg-main: #0F172A;
+  --bg-card: #1E293B;
+  --bg-input: #0F172A;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-active: rgba(255, 255, 255, 0.15);
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  --shadow-main: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --bg-badge-unlocked: rgba(16, 185, 129, 0.05);
+  --border-badge-unlocked: rgba(16, 185, 129, 0.15);
+  --text-white-dark-black: #FFFFFF;
+}
+
+.light-theme {
+  --bg-main: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --bg-input: #F8FAFC;
+  --border-subtle: rgba(15, 23, 42, 0.08);
+  --border-active: rgba(15, 23, 42, 0.15);
+  --text-main: #0F172A;
+  --text-muted: #475569;
+  --text-subtle: #64748B;
+  --shadow-main: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --bg-badge-unlocked: rgba(16, 185, 129, 0.08);
+  --border-badge-unlocked: rgba(16, 185, 129, 0.3);
+  --text-white-dark-black: #0F172A;
+}
+
+/* Base custom classes to react nicely with light or dark themes */
+.theme-bg-main {
+  background-color: var(--bg-main);
+  transition: background-color 0.3s ease;
+}
+
+.theme-bg-card {
+  background-color: var(--bg-card);
+  transition: background-color 0.3s ease;
+}
+
+.theme-border-subtle {
+  border-color: var(--border-subtle);
+  transition: border-color 0.3s ease;
+}
+
+.theme-text-main {
+  color: var(--text-main);
+  transition: color 0.3s ease;
+}
+
+.theme-text-muted {
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.theme-text-subtle {
+  color: var(--text-subtle);
+  transition: color 0.3s ease;
+}
+
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-main);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card-subtle {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #A855F7, #3B82F6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #A855F7, #3B82F6);
+}
+
+.chart-bar {
+  transition: height 0.5s ease-out;
+}
+
+/* Animations helper */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

@@ -1,0 +1,6 @@
+{
+  "name": "FitForge",
+  "description": "FitForge is a premium, dark-themed fitness tracking and health analytics mobile app that allows users to track their weight, calculate BMI, manage goals, and see smart calorie recommendations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
