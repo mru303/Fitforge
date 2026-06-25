@@ -145,7 +145,7 @@ class _CaloriesTabState extends State<CaloriesTab> {
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.remove, size: 18, color: Colors.white40),
+                                icon: const Icon(Icons.remove, size: 18, color: Colors.white54),
                                 onPressed: () {
                                   if (_age > 1) {
                                     setState(() {
@@ -157,7 +157,7 @@ class _CaloriesTabState extends State<CaloriesTab> {
                               ),
                               Text('$_age', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                               IconButton(
-                                icon: const Icon(Icons.add, size: 18, color: Colors.white40),
+                                icon: const Icon(Icons.add, size: 18, color: Colors.white54),
                                 onPressed: () {
                                   setState(() {
                                     _age++;
@@ -285,7 +285,7 @@ class _CaloriesTabState extends State<CaloriesTab> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
-            color: isSel ? Colors.white : Colors.white40,
+            color: isSel ? Colors.white :Colors.white54,
           ),
         ),
       ),
@@ -345,13 +345,13 @@ class _CaloriesTabState extends State<CaloriesTab> {
                 '${calories.round()}',
                 style: const TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.black,
+                  fontWeight: FontWeight.w900,
                   color: Colors.white,
                 ),
               ),
               const Text(
                 'kcal / day',
-                style: TextStyle(fontSize: 10, color: Colors.white40),
+                style: TextStyle(fontSize: 10, color: Colors.white54),
               )
             ],
           )

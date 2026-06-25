@@ -246,7 +246,7 @@ class AnalyticsThemeTab extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.black, color: Colors.white),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
         ),
       ],
     );

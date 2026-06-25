@@ -95,7 +95,7 @@ class _BmiTabState extends State<BmiTab> with SingleTickerProviderStateMixin {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('BMI calculation saved to history!'),
-          backgroundColor: Colors.emerald,
+          backgroundColor: const Color(0xFF10B981),
         ),
       );
       _tabController.animateTo(1); // switch to history view
@@ -169,7 +169,7 @@ class _BmiTabState extends State<BmiTab> with SingleTickerProviderStateMixin {
         gaugeColor = Colors.amber;
         break;
       case 'Normal':
-        gaugeColor = Colors.emerald;
+        gaugeColor = const Color(0xFF10B981);
         break;
       case 'Overweight':
         gaugeColor = Colors.orange;
@@ -324,7 +324,7 @@ class _BmiTabState extends State<BmiTab> with SingleTickerProviderStateMixin {
                     _bmiValue!.toStringAsFixed(1),
                     style: TextStyle(
                       fontSize: 48,
-                      fontWeight: FontWeight.black,
+                      fontWeight: FontWeight.w900,
                       color: gaugeColor,
                     ),
                   ),
@@ -433,13 +433,13 @@ class _BmiTabState extends State<BmiTab> with SingleTickerProviderStateMixin {
           ),
           child: Column(
             children: [
-              Icon(icon, color: isSelected ? color : Colors.white40, size: 28),
+              Icon(icon, color: isSelected ? color : Colors.white54, size: 28),
               const SizedBox(height: 6),
               Text(
                 gender,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : Colors.white40,
+                  color: isSelected ? Colors.white : Colors.white54,
                   fontSize: 13,
                 ),
               ),
@@ -575,7 +575,7 @@ class _BmiTabState extends State<BmiTab> with SingleTickerProviderStateMixin {
                         categoryColor = Colors.amber;
                         break;
                       case 'Normal':
-                        categoryColor = Colors.emerald;
+                        categoryColor = const Color(0xFF10B981);
                         break;
                       case 'Overweight':
                         categoryColor = Colors.orange;
@@ -604,7 +604,7 @@ class _BmiTabState extends State<BmiTab> with SingleTickerProviderStateMixin {
                                     rec.score.toStringAsFixed(1),
                                     style: const TextStyle(
                                       fontSize: 20,
-                                      fontWeight: FontWeight.black,
+                                      fontWeight:FontWeight.w900,
                                       color: Colors.white,
                                     ),
                                   ),

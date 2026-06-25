@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'providers/fitness_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/bmi_calculator_screen.dart';
-import 'screens/weight_tracker_screen.dart';
-import 'screens/goal_management_screen.dart';
-import 'screens/analytics_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,37 +17,34 @@ class FitForgeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => FitnessProvider()),
+        ChangeNotifierProvider(
+          create: (_) => FitnessProvider(),
+        ),
       ],
       child: MaterialApp(
         title: 'FitForge',
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark, // Dark Mode Only
+        themeMode: ThemeMode.dark,
         darkTheme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.dark,
-          scaffoldBackgroundColor: const Color(0xFF0F172A), // Slate 900
+          scaffoldBackgroundColor: const Color(0xFF0F172A),
           colorScheme: const ColorScheme.dark(
-            brightness: Brightness.dark,
-            primary: Color(0xFF8B5CF6), // Purple 500
-            secondary: Color(0xFF3B82F6), // Blue 500
-            background: const Color(0xFF0F172A),
-            surface: Color(0xFF1E293B), // Slate 800 (Cards)
-            onBackground: Colors.white,
-            onSurface: Colors.white,
-            error: Color(0xFFEF4444), // Soft Red
+            primary: Color(0xFF8B5CF6),
+            secondary: Color(0xFF3B82F6),
+            surface: Color(0xFF1E293B),
+            error: Color(0xFFEF4444),
           ),
           textTheme: const TextTheme(
             headlineMedium: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
               color: Colors.white,
             ),
             titleLarge: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              letterSpacing: -0.3,
+              color: Colors.white,
             ),
             bodyLarge: TextStyle(
               fontSize: 16,
@@ -61,25 +55,10 @@ class FitForgeApp extends StatelessWidget {
               color: Colors.white60,
             ),
           ),
-          cardTheme: CardTheme(
-            color: const Color(0xFF1E293B),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: Colors.white.withOpacity(0.05),
-                width: 1,
-              ),
-            ),
-          ),
         ),
         home: const SplashScreen(),
         routes: {
           '/dashboard': (context) => const DashboardScreen(),
-          '/bmi_calc': (context) => const BmiCalculatorScreen(),
-          '/weight_tracker': (context) => const WeightTrackerScreen(),
-          '/goal_mgmt': (context) => const GoalManagementScreen(),
-          '/analytics': (context) => const AnalyticsScreen(),
         },
       ),
     );

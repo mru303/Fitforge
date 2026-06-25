@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../providers/fitness_provider.dart';
 import 'tabs/home_tab.dart';
 import 'tabs/weight_tracker_tab.dart';
 import 'tabs/bmi_tab.dart';

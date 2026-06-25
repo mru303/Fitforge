@@ -10,16 +10,20 @@ class HomeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final fitness = Provider.of<FitnessProvider>(context);
     final weightEntries = fitness.weightEntries;
-    
-    double currentWeight = weightEntries.isNotEmpty ? weightEntries.first.weight : 75.0;
-    double latestBmi = fitness.bmiRecords.isNotEmpty ? fitness.bmiRecords.first.score : 23.4;
-    String latestBmiCategory = fitness.bmiRecords.isNotEmpty ? fitness.bmiRecords.first.category : 'Normal';
-    
+
+    double currentWeight =
+        weightEntries.isNotEmpty ? weightEntries.first.weight : 75.0;
+    double latestBmi =
+        fitness.bmiRecords.isNotEmpty ? fitness.bmiRecords.first.score : 23.4;
+    String latestBmiCategory = fitness.bmiRecords.isNotEmpty
+        ? fitness.bmiRecords.first.category
+        : 'Normal';
+
     double lastDiff = fitness.lostOrGained;
-    String diffText = lastDiff == 0 
-        ? "0.0 kg change" 
-        : lastDiff > 0 
-            ? "+${lastDiff.toStringAsFixed(1)} kg gained" 
+    String diffText = lastDiff == 0
+        ? "0.0 kg change"
+        : lastDiff > 0
+            ? "+${lastDiff.toStringAsFixed(1)} kg gained"
             : "${lastDiff.toStringAsFixed(1)} kg lost";
 
     Color categoryColor;
@@ -28,7 +32,7 @@ class HomeTab extends StatelessWidget {
         categoryColor = Colors.amber;
         break;
       case 'Normal':
-        categoryColor = Colors.emerald;
+        categoryColor = const Color(0xFF10B981);
         break;
       case 'Overweight':
         categoryColor = Colors.orange;
@@ -71,13 +75,14 @@ class HomeTab extends StatelessWidget {
               ),
               // Streak Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E293B),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: fitness.trackingStreak > 0 
-                        ? const Color(0xFF8B5CF6).withOpacity(0.4) 
+                    color: fitness.trackingStreak > 0
+                        ? const Color(0xFF8B5CF6).withOpacity(0.4)
                         : Colors.white.withOpacity(0.05),
                   ),
                 ),
@@ -85,7 +90,9 @@ class HomeTab extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.local_fire_department,
-                      color: fitness.trackingStreak > 0 ? const Color(0xFFF59E0B) : Colors.white30,
+                      color: fitness.trackingStreak > 0
+                          ? const Color(0xFFF59E0B)
+                          : Colors.white30,
                       size: 20,
                     ),
                     const SizedBox(width: 6),
@@ -95,7 +102,9 @@ class HomeTab extends StatelessWidget {
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
-                        color: fitness.trackingStreak > 0 ? Colors.white : Colors.white60,
+                        color: fitness.trackingStreak > 0
+                            ? Colors.white
+                            : Colors.white60,
                       ),
                     ),
                   ],
@@ -109,20 +118,19 @@ class HomeTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF8B5CF6), Color(0xFF3B82F6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF8B5CF6).withOpacity(0.2),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                )
-              ]
-            ),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF8B5CF6), Color(0xFF3B82F6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF8B5CF6).withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  )
+                ]),
             child: Row(
               children: [
                 Expanded(
@@ -143,7 +151,7 @@ class HomeTab extends StatelessWidget {
                         '${fitness.goalProgressPercentage.toStringAsFixed(0)}%',
                         style: const TextStyle(
                           fontSize: 42,
-                          fontWeight: FontWeight.black,
+                          fontWeight: FontWeight.w900,
                           color: Colors.white,
                         ),
                       ),
@@ -151,7 +159,9 @@ class HomeTab extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            lastDiff <= 0 ? Icons.trending_down : Icons.trending_up,
+                            lastDiff <= 0
+                                ? Icons.trending_down
+                                : Icons.trending_up,
                             color: Colors.white,
                             size: 16,
                           ),
@@ -180,7 +190,8 @@ class HomeTab extends StatelessWidget {
                         value: fitness.goalProgressPercentage / 100,
                         strokeWidth: 9,
                         backgroundColor: Colors.white.withOpacity(0.15),
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(Colors.white),
                         strokeCap: StrokeCap.round,
                       ),
                       Center(
@@ -211,8 +222,8 @@ class HomeTab extends StatelessWidget {
               _buildStatsCard(
                 title: 'CURRENT WEIGHT',
                 value: '${currentWeight.toStringAsFixed(1)} kg',
-                subtitle: weightEntries.isNotEmpty 
-                    ? 'Logs: ${weightEntries.length}' 
+                subtitle: weightEntries.isNotEmpty
+                    ? 'Logs: ${weightEntries.length}'
                     : 'No entries yet',
                 icon: Icons.monitor_weight_rounded,
                 accentColor: const Color(0xFF8B5CF6),
@@ -221,7 +232,8 @@ class HomeTab extends StatelessWidget {
               _buildStatsCard(
                 title: 'GOAL TARGET',
                 value: '${fitness.goalWeight.toStringAsFixed(1)} kg',
-                subtitle: 'Remaining: ${(currentWeight - fitness.goalWeight).abs().toStringAsFixed(1)} kg',
+                subtitle:
+                    'Remaining: ${(currentWeight - fitness.goalWeight).abs().toStringAsFixed(1)} kg',
                 icon: Icons.track_changes_rounded,
                 accentColor: const Color(0xFF3B82F6),
               ),
@@ -267,15 +279,17 @@ class HomeTab extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          
+
           if (weightEntries.isEmpty)
             Card(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(Icons.scale_rounded, color: Colors.white24, size: 40),
+                      Icon(Icons.scale_rounded,
+                          color: Colors.white24, size: 40),
                       const SizedBox(height: 12),
                       const Text(
                         'Unlock your forge analytics!',
@@ -399,7 +413,7 @@ class HomeTab extends StatelessWidget {
                 value,
                 style: const TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.w830,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: -0.5,
                 ),

@@ -1,8 +1,28 @@
-node_modules/
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
 build/
-dist/
-coverage/
+
+# IDE
+.idea/
+.vscode/
+
+# macOS
 .DS_Store
-*.log
-.env*
-!.env.example
+
+# Android
+android/.gradle/
+android/local.properties
+
+# Generated
+.metadata
+*.iml
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/App.framework

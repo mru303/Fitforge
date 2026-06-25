@@ -3,7 +3,7 @@ description: FitForge is a premium, dark-themed fitness tracking & health analyt
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -21,6 +21,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    # Adding asset slots for custom branding if required
-    - assets/images/
