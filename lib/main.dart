@@ -17,9 +17,7 @@ class FitForgeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => FitnessProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => FitnessProvider()),
       ],
       child: MaterialApp(
         title: 'FitForge',
@@ -28,38 +26,38 @@ class FitForgeApp extends StatelessWidget {
         darkTheme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.dark,
-          scaffoldBackgroundColor: const Color(0xFF0F172A),
+          scaffoldBackgroundColor: const Color(0xFF050505),
           colorScheme: const ColorScheme.dark(
-            primary: Color(0xFF8B5CF6),
-            secondary: Color(0xFF3B82F6),
-            surface: Color(0xFF1E293B),
+            primary: Color(0xFF7C3AED),
+            secondary: Color(0xFF2563EB),
+            surface: Color(0xFF121212),
+            surfaceContainerHighest: Color(0xFF1B1B1B),
             error: Color(0xFFEF4444),
+          ),
+          cardTheme: CardThemeData(
+            color: const Color(0xFF121212),
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           ),
           textTheme: const TextTheme(
             headlineMedium: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+                fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white),
             titleLarge: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-            bodyLarge: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
-            bodyMedium: TextStyle(
-              fontSize: 14,
-              color: Colors.white60,
-            ),
+                fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
+            bodyLarge: TextStyle(fontSize: 16, color: Colors.white70),
+            bodyMedium: TextStyle(fontSize: 14, color: Colors.white60),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: const Color(0xFF121212),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none),
           ),
         ),
         home: const SplashScreen(),
-        routes: {
-          '/dashboard': (context) => const DashboardScreen(),
-        },
+        routes: {'/dashboard': (context) => const DashboardScreen()},
       ),
     );
   }

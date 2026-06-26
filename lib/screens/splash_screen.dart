@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import '../widgets/fitforge_logo.dart';
 import 'dashboard_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,6 +15,8 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _rotationAnimation;
+  late Animation<double> _glowAnimation;
 
   @override
   void initState() {
@@ -20,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1600),
+      duration: const Duration(milliseconds: 2500),
     );
 
     _fadeAnimation = Tween<double>(
@@ -45,15 +49,35 @@ class _SplashScreenState extends State<SplashScreen>
         parent: _controller,
         curve: const Interval(
           0.0,
-          0.65,
-          curve: Curves.elasticOut,
+          0.7,
+          curve: Curves.easeOutBack,
         ),
+      ),
+    );
+
+    _rotationAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOutCubic,
+      ),
+    );
+
+    _glowAnimation = Tween<double>(
+      begin: 0.4,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
       ),
     );
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -76,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen>
               );
             },
             transitionDuration: const Duration(
-              milliseconds: 600,
+              milliseconds: 650,
             ),
           ),
         );
@@ -105,33 +129,61 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF8B5CF6),
-                            Color(0xFF3B82F6),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF8B5CF6,
-                            ).withOpacity(0.35),
-                            blurRadius: 25,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.fitness_center_rounded,
-                        size: 46,
-                        color: Colors.white,
+                    SizedBox(
+                      width: 118,
+                      height: 118,
+                      child: AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle: _rotationAnimation.value * 2 * pi,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Container(
+                                  width: 118,
+                                  height: 118,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: const Color(0xFF8B5CF6).withOpacity(0.18),
+                                      width: 10,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: 96,
+                                  height: 96,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: const Color(0xFF8B5CF6).withOpacity(0.7),
+                                      width: 2.5,
+                                    ),
+                                  ),
+                                ),
+                                Transform.scale(
+                                  scale: _glowAnimation.value,
+                                  child: Container(
+                                    width: 92,
+                                    height: 92,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                                          blurRadius: 28,
+                                          spreadRadius: 8,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const FitForgeLogo(size: 72),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -154,16 +206,14 @@ class _SplashScreenState extends State<SplashScreen>
                         color: Colors.white.withOpacity(0.4),
                       ),
                     ),
-                    const SizedBox(height: 80),
+                    const SizedBox(height: 44),
                     SizedBox(
-                      width: 32,
-                      height: 32,
+                      width: 34,
+                      height: 34,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          const Color(
-                            0xFF8B5CF6,
-                          ).withOpacity(0.7),
+                          const Color(0xFF8B5CF6).withOpacity(0.9),
                         ),
                       ),
                     ),

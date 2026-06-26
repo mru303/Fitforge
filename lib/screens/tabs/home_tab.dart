@@ -1,438 +1,442 @@
+import 'dart:math';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../providers/fitness_provider.dart';
+import '../../widgets/progress_ring.dart';
+import '../../widgets/section_title.dart';
+import '../../widgets/stat_card.dart';
 
 class HomeTab extends StatelessWidget {
-  const HomeTab({super.key});
+  const HomeTab({super.key, this.onAddWeight});
+
+  final VoidCallback? onAddWeight;
 
   @override
   Widget build(BuildContext context) {
     final fitness = Provider.of<FitnessProvider>(context);
-    final weightEntries = fitness.weightEntries;
-
-    double currentWeight =
-        weightEntries.isNotEmpty ? weightEntries.first.weight : 75.0;
-    double latestBmi =
-        fitness.bmiRecords.isNotEmpty ? fitness.bmiRecords.first.score : 23.4;
-    String latestBmiCategory = fitness.bmiRecords.isNotEmpty
+    final entries = fitness.weightEntries;
+    final currentWeight = fitness.currentWeight;
+    final latestBmi = fitness.latestBmi;
+    final latestCategory = fitness.bmiRecords.isNotEmpty
         ? fitness.bmiRecords.first.category
         : 'Normal';
+    final progress = fitness.goalProgressPercentage / 100;
+    final difference = fitness.lostOrGained;
+    final diffText = difference == 0
+        ? 'Balanced'
+        : difference > 0
+            ? '+${difference.toStringAsFixed(1)} kg'
+            : '${difference.toStringAsFixed(1)} kg';
 
-    double lastDiff = fitness.lostOrGained;
-    String diffText = lastDiff == 0
-        ? "0.0 kg change"
-        : lastDiff > 0
-            ? "+${lastDiff.toStringAsFixed(1)} kg gained"
-            : "${lastDiff.toStringAsFixed(1)} kg lost";
-
-    Color categoryColor;
-    switch (latestBmiCategory) {
-      case 'Underweight':
-        categoryColor = Colors.amber;
-        break;
-      case 'Normal':
-        categoryColor = const Color(0xFF10B981);
-        break;
-      case 'Overweight':
-        categoryColor = Colors.orange;
-        break;
-      default:
-        categoryColor = Colors.red;
-        break;
+    Color bmiColor = const Color(0xFF10B981);
+    if (latestCategory == 'Underweight') {
+      bmiColor = Colors.amber;
+    } else if (latestCategory == 'Overweight' || latestCategory == 'Obese') {
+      bmiColor = Colors.orange;
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Greeting & Streak
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Welcome back,',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.52),
-                    ),
-                  ),
-                  const Text(
-                    'Iron Forger',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              // Streak Badge
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: fitness.trackingStreak > 0
-                        ? const Color(0xFF8B5CF6).withOpacity(0.4)
-                        : Colors.white.withOpacity(0.05),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.local_fire_department,
-                      color: fitness.trackingStreak > 0
-                          ? const Color(0xFFF59E0B)
-                          : Colors.white30,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${fitness.trackingStreak} Days',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        color: fitness.trackingStreak > 0
-                            ? Colors.white
-                            : Colors.white60,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 28),
-
-          // Overview Statistics Banner Card
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF8B5CF6), Color(0xFF3B82F6)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF8B5CF6).withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  )
-                ]),
-            child: Row(
+    return Material(
+      color: Colors.transparent,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'GOAL COMPLETION',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.2,
-                          color: Colors.white.withOpacity(0.75),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${fitness.goalProgressPercentage.toStringAsFixed(0)}%',
-                        style: const TextStyle(
-                          fontSize: 42,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Icon(
-                            lastDiff <= 0
-                                ? Icons.trending_down
-                                : Icons.trending_up,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            diffText,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+                      const Text('Today’s Focus',
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white54,
+                              letterSpacing: 1.4)),
+                      const SizedBox(height: 4),
+                      const Text('FitForge',
+                          style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white)),
+                      const SizedBox(height: 4),
+                      Text('${_greeting()}, ${fitness.userProfile.name}',
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.65))),
                     ],
                   ),
                 ),
-                // Circular progress ring
-                SizedBox(
-                  width: 90,
-                  height: 90,
-                  child: Stack(
-                    fit: StackFit.expand,
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF121212),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  ),
+                  child: Row(
                     children: [
-                      CircularProgressIndicator(
-                        value: fitness.goalProgressPercentage / 100,
-                        strokeWidth: 9,
-                        backgroundColor: Colors.white.withOpacity(0.15),
-                        valueColor:
-                            const AlwaysStoppedAnimation<Color>(Colors.white),
-                        strokeCap: StrokeCap.round,
-                      ),
-                      Center(
-                        child: Icon(
-                          Icons.insights_rounded,
-                          size: 32,
-                          color: Colors.white.withOpacity(0.85),
-                        ),
-                      ),
+                      const Icon(Icons.local_fire_department_rounded,
+                          size: 16, color: Color(0xFFF59E0B)),
+                      const SizedBox(width: 6),
+                      Text('${fitness.trackingStreak}d',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700)),
                     ],
                   ),
-                )
+                ),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-
-          // Primary Health Grid (BMI / Weight / Goal)
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
-            childAspectRatio: 1.28,
-            children: [
-              // Weight card
-              _buildStatsCard(
-                title: 'CURRENT WEIGHT',
-                value: '${currentWeight.toStringAsFixed(1)} kg',
-                subtitle: weightEntries.isNotEmpty
-                    ? 'Logs: ${weightEntries.length}'
-                    : 'No entries yet',
-                icon: Icons.monitor_weight_rounded,
-                accentColor: const Color(0xFF8B5CF6),
-              ),
-              // Goal Weight Card
-              _buildStatsCard(
-                title: 'GOAL TARGET',
-                value: '${fitness.goalWeight.toStringAsFixed(1)} kg',
-                subtitle:
-                    'Remaining: ${(currentWeight - fitness.goalWeight).abs().toStringAsFixed(1)} kg',
-                icon: Icons.track_changes_rounded,
-                accentColor: const Color(0xFF3B82F6),
-              ),
-              // BMI Card
-              _buildStatsCard(
-                title: 'CURRENT BMI',
-                value: latestBmi.toStringAsFixed(1),
-                subtitle: latestBmiCategory,
-                icon: Icons.calculate_rounded,
-                accentColor: categoryColor,
-              ),
-              // Tracking Days
-              _buildStatsCard(
-                title: 'LIFETIME LOGS',
-                value: '${weightEntries.length} Items',
-                subtitle: 'Active tracking',
-                icon: Icons.date_range_rounded,
-                accentColor: const Color(0xFF10B981),
-              ),
-            ],
-          ),
-          const SizedBox(height: 28),
-
-          // Recent Activity Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Today's Summary",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                DateFormat('EEE, MMM d').format(DateTime.now()),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.white.withOpacity(0.4),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          if (weightEntries.isEmpty)
-            Card(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.scale_rounded,
-                          color: Colors.white24, size: 40),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Unlock your forge analytics!',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Add your first weight entry in the Tracker tab to begin.',
-                        style: TextStyle(fontSize: 12, color: Colors.white38),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          else
+            const SizedBox(height: 20),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.04)),
+                borderRadius: BorderRadius.circular(28),
+                gradient: const LinearGradient(
+                    colors: [Color(0xFF7C3AED), Color(0xFF2563EB)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight),
+                boxShadow: [
+                  BoxShadow(
+                      color: const Color(0xFF7C3AED).withOpacity(0.16),
+                      blurRadius: 24,
+                      offset: const Offset(0, 12))
+                ],
               ),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF8B5CF6).withOpacity(0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check_circle_outline_rounded,
-                      color: Color(0xFF8B5CF6),
-                      size: 24,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Goal progress',
+                            style: TextStyle(
+                                color: Colors.white.withOpacity(0.78),
+                                fontSize: 12,
+                                letterSpacing: 1.2)),
+                        const SizedBox(height: 8),
+                        Text('${(progress * 100).toStringAsFixed(0)}%',
+                            style: const TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white)),
+                        const SizedBox(height: 8),
+                        Text('$diffText vs your starting point',
+                            style: const TextStyle(
+                                fontSize: 13, color: Colors.white)),
+                      ],
                     ),
                   ),
+                  ProgressRing(
+                      value: progress,
+                      size: 92,
+                      accent: Colors.white,
+                      icon: Icons.insights_rounded,
+                      label: 'On track'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            const SectionTitle(
+                title: 'Quick stats', subtitle: 'A glance at your momentum'),
+            const SizedBox(height: 12),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 14,
+              mainAxisSpacing: 14,
+              childAspectRatio: 1.2,
+              children: [
+                StatCard(
+                    label: 'Current weight',
+                    value: '${currentWeight.toStringAsFixed(1)} kg',
+                    subtitle: 'Live log',
+                    icon: Icons.monitor_weight_rounded,
+                    accent: const Color(0xFF7C3AED)),
+                StatCard(
+                    label: 'Goal weight',
+                    value: '${fitness.goalWeight.toStringAsFixed(1)} kg',
+                    subtitle:
+                        '${(currentWeight - fitness.goalWeight).abs().toStringAsFixed(1)} kg left',
+                    icon: Icons.track_changes_rounded,
+                    accent: const Color(0xFF2563EB)),
+                StatCard(
+                    label: 'BMI',
+                    value: latestBmi.toStringAsFixed(1),
+                    subtitle: latestCategory,
+                    icon: Icons.calculate_rounded,
+                    accent: bmiColor),
+                StatCard(
+                    label: 'Logs',
+                    value: '${entries.length}',
+                    subtitle: 'Entries saved',
+                    icon: Icons.history_rounded,
+                    accent: const Color(0xFF10B981)),
+              ],
+            ),
+            const SizedBox(height: 22),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF121212),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: Colors.white.withOpacity(0.06)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Weight This Week',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                  const SizedBox(height: 8),
+                  if (entries.length < 2)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        child: Column(
+                          children: [
+                            Icon(Icons.show_chart_rounded, size: 38, color: Colors.white24),
+                            const SizedBox(height: 10),
+                            const Text('No weight history yet.\nStart logging your journey.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, height: 1.4)),
+                            const SizedBox(height: 12),
+                            FilledButton.icon(
+                              onPressed: () {
+                                HapticFeedback.mediumImpact();
+                                onAddWeight?.call();
+                              },
+                              icon: const Icon(Icons.add_rounded),
+                              label: const Text('Add Weight'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFF7C3AED),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 140,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        child: LineChart(
+                          key: ValueKey(entries.length),
+                          LineChartData(
+                            gridData: FlGridData(show: false),
+                            titlesData: FlTitlesData(show: false),
+                            borderData: FlBorderData(show: false),
+                            lineTouchData: const LineTouchData(enabled: false),
+                            minY: _lowest(entries) - 1,
+                            maxY: _highest(entries) + 1,
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: _buildWeeklySpots(entries),
+                                isCurved: true,
+                                color: const Color(0xFF7C3AED),
+                                barWidth: 3,
+                                dotData: const FlDotData(show: false),
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  color: const Color(0xFF7C3AED).withOpacity(0.16),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            const SectionTitle(
+                title: 'Today’s plan', subtitle: 'Keep the momentum steady'),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _actionChip(context, Icons.add_circle_outline_rounded,
+                    'Log weight', 'Add a fresh reading'),
+                _actionChip(context, Icons.insights_rounded, 'Open insights',
+                    'Check your trends'),
+              ],
+            ),
+            const SizedBox(height: 22),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF121212),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.white.withOpacity(0.06))),
+              child: Row(
+                children: [
+                  Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                          color: const Color(0xFF7C3AED).withOpacity(0.16),
+                          borderRadius: BorderRadius.circular(16)),
+                      child: const Icon(Icons.auto_awesome_rounded,
+                          color: Color(0xFF7C3AED))),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Latest weighing recorded',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          'Logged at ${weightEntries.first.weight} kg on ${DateFormat('MMM dd').format(weightEntries.first.date)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withOpacity(0.45),
+                        const Text('Motivation',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
+                        const SizedBox(height: 4),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          child: Text(
+                            _quote(),
+                            key: ValueKey(_quote()),
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white.withOpacity(0.62)),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Text(
-                    'Active',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF10B981),
-                    ),
-                  )
                 ],
               ),
             ),
-        ],
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF121212),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.white.withOpacity(0.06))),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today_rounded,
+                      color: Color(0xFF2563EB)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(DateFormat('EEE, MMM d').format(DateTime.now()),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
+                        Text(
+                            entries.isEmpty
+                                ? 'No logs yet. Start a streak.'
+                                : 'Latest entry logged on ${DateFormat('MMM d').format(entries.first.date)}',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withOpacity(0.58))),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatsCard({
-    required String title,
-    required String value,
-    required String subtitle,
-    required IconData icon,
-    required Color accentColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.04),
-          width: 1.0,
+  Widget _actionChip(
+      BuildContext context, IconData icon, String title, String subtitle) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () => ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('$title tapped'))),
+      child: Container(
+        width: 155,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+            color: const Color(0xFF121212),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white.withOpacity(0.06))),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF7C3AED).withOpacity(0.16),
+                  borderRadius: BorderRadius.circular(14)),
+              child: Icon(icon, color: const Color(0xFF7C3AED), size: 18),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, color: Colors.white)),
+                    Text(subtitle,
+                        style: TextStyle(
+                            fontSize: 11, color: Colors.white.withOpacity(0.5)))
+                  ]),
+            ),
+          ],
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white.withOpacity(0.4),
-                  letterSpacing: 0.8,
-                ),
-              ),
-              Icon(
-                icon,
-                color: accentColor.withOpacity(0.8),
-                size: 18,
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withOpacity(0.5),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          )
-        ],
-      ),
     );
+  }
+
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour <= 11) {
+      return 'Good Morning ☀️';
+    }
+    if (hour >= 12 && hour <= 16) {
+      return 'Keep Pushing 💪';
+    }
+    if (hour >= 17 && hour <= 20) {
+      return 'Good Evening 🌙';
+    }
+    return 'Finish Strong 🔥';
+  }
+
+  String _quote() {
+    final quotes = [
+      'Small progress is still progress.',
+      'Forge yourself every day.',
+      'Consistency beats perfection.',
+      'Discipline beats motivation.',
+      'Strong today. Stronger tomorrow.',
+    ];
+    final index = Random(DateTime.now().millisecondsSinceEpoch).nextInt(quotes.length);
+    return quotes[index];
+  }
+
+  double _lowest(List<dynamic> entries) {
+    return entries.fold<double>(double.infinity, (value, entry) => entry.weight < value ? entry.weight : value);
+  }
+
+  double _highest(List<dynamic> entries) {
+    return entries.fold<double>(0, (value, entry) => entry.weight > value ? entry.weight : value);
+  }
+
+  List<FlSpot> _buildWeeklySpots(List<dynamic> entries) {
+    final sorted = List<dynamic>.from(entries)
+      ..sort((a, b) => a.date.compareTo(b.date));
+    final slice = sorted.length > 7 ? sorted.sublist(sorted.length - 7) : sorted;
+    return [
+      for (int i = 0; i < slice.length; i++)
+        FlSpot(i.toDouble(), slice[i].weight),
+    ];
   }
 }

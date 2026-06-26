@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/fitness_provider.dart';
+import '../../widgets/section_title.dart';
+import '../../widgets/stat_card.dart';
 
 class CaloriesTab extends StatefulWidget {
   const CaloriesTab({super.key});
@@ -35,326 +37,335 @@ class _CaloriesTabState extends State<CaloriesTab> {
   void _triggerCalculation() {
     final fitness = Provider.of<FitnessProvider>(context, listen: false);
     final calculated = fitness.calculateCalories(
-      height: _heightCm,
-      weight: _weightKg,
-      age: _age,
-      gender: _gender,
-      activityLevel: _activityLevel,
-    );
-    setState(() {
-      _results = calculated;
-    });
+        height: _heightCm,
+        weight: _weightKg,
+        age: _age,
+        gender: _gender,
+        activityLevel: _activityLevel);
+    setState(() => _results = calculated);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Calorie Intake Guide',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Calculate daily energy budgets based on activity and metabolic rates',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.white.withOpacity(0.48),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Core details inputs
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.white.withOpacity(0.04)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'DETERMINING PARAMETERS',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white38, letterSpacing: 0.8),
-                ),
-                const SizedBox(height: 18),
-
-                // Height Slider
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Height', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white70)),
-                    Text('${_heightCm.round()} cm', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                  ],
-                ),
-                Slider(
-                  value: _heightCm,
-                  min: 100,
-                  max: 250,
-                  activeColor: const Color(0xFF8B5CF6),
-                  onChanged: (val) {
-                    setState(() {
-                      _heightCm = val;
-                      _triggerCalculation();
-                    });
-                  },
-                ),
-                const SizedBox(height: 12),
-
-                // Weight Slider
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Weight', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white70)),
-                    Text('${_weightKg.round()} kg', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                  ],
-                ),
-                Slider(
-                  value: _weightKg,
-                  min: 30,
-                  max: 200,
-                  activeColor: const Color(0xFF3B82F6),
-                  onChanged: (val) {
-                    setState(() {
-                      _weightKg = val;
-                      _triggerCalculation();
-                    });
-                  },
-                ),
-
-                const SizedBox(height: 12),
-
-                // Age and Gender
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Age', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white54)),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.remove, size: 18, color: Colors.white54),
-                                onPressed: () {
-                                  if (_age > 1) {
-                                    setState(() {
-                                      _age--;
-                                      _triggerCalculation();
-                                    });
-                                  }
-                                },
-                              ),
-                              Text('$_age', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              IconButton(
-                                icon: const Icon(Icons.add, size: 18, color: Colors.white54),
-                                onPressed: () {
-                                  setState(() {
-                                    _age++;
-                                    _triggerCalculation();
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
+    return Material(
+      color: Colors.transparent,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SectionTitle(
+                title: 'Calorie guide',
+                subtitle: 'Plan your daily energy without losing momentum'),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF121212),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.white.withOpacity(0.06))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Body metrics',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white70,
+                          letterSpacing: 1.2)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: StatCard(
+                              label: 'Height',
+                              value: '${_heightCm.round()} cm',
+                              subtitle: 'Current height',
+                              icon: Icons.straighten_rounded,
+                              accent: const Color(0xFF7C3AED))),
+                      const SizedBox(width: 12),
+                      Expanded(
+                          child: StatCard(
+                              label: 'Weight',
+                              value: '${_weightKg.round()} kg',
+                              subtitle: 'Current bodyweight',
+                              icon: Icons.monitor_weight_rounded,
+                              accent: const Color(0xFF2563EB))),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Age',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white70)),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                IconButton(
+                                    onPressed: () {
+                                      if (_age > 1) {
+                                        setState(() {
+                                          _age--;
+                                          _triggerCalculation();
+                                        });
+                                      }
+                                    },
+                                    icon: const Icon(Icons.remove,
+                                        color: Colors.white60)),
+                                Text('$_age',
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white)),
+                                IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _age++;
+                                        _triggerCalculation();
+                                      });
+                                    },
+                                    icon: const Icon(Icons.add,
+                                        color: Colors.white60)),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Gender', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white54)),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Gender',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white70)),
+                            const SizedBox(height: 8),
+                            Row(children: [
                               _buildMiniGenderButton('Male'),
                               const SizedBox(width: 8),
                               _buildMiniGenderButton('Female'),
-                            ],
-                          )
-                        ],
+                            ]),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-
-                // Activity level selector
-                const Text('Daily Activity Level', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white54)),
-                const SizedBox(height: 8),
-                DropdownButtonHideUnderline(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: DropdownButton<String>(
-                      value: _activityLevel,
-                      dropdownColor: const Color(0xFF1E293B),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                      items: _activities.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() {
-                            _activityLevel = val;
-                            _triggerCalculation();
-                          });
-                        }
-                      },
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text('Daily activity',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70)),
+                  const SizedBox(height: 8),
+                  DropdownButtonHideUnderline(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 4),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: const Color(0xFF0D0D0D),
+                          borderRadius: BorderRadius.circular(14)),
+                      child: DropdownButton<String>(
+                          value: _activityLevel,
+                          dropdownColor: const Color(0xFF121212),
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.w600),
+                          items: _activities
+                              .map((value) => DropdownMenuItem(
+                                  value: value, child: Text(value)))
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() {
+                                _activityLevel = val;
+                                _triggerCalculation();
+                              });
+                            }
+                          }),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Height',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70)),
+                        const SizedBox(height: 6),
+                        Text('${_heightCm.round()} cm',
+                            style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
+                        Slider(
+                            value: _heightCm,
+                            min: 100,
+                            max: 250,
+                            activeColor: const Color(0xFF7C3AED),
+                            onChanged: (val) {
+                              setState(() {
+                                _heightCm = val;
+                                _triggerCalculation();
+                              });
+                            })
+                      ]),
+                  const SizedBox(height: 8),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Weight',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70)),
+                        const SizedBox(height: 6),
+                        Text('${_weightKg.round()} kg',
+                            style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
+                        Slider(
+                            value: _weightKg,
+                            min: 30,
+                            max: 200,
+                            activeColor: const Color(0xFF2563EB),
+                            onChanged: (val) {
+                              setState(() {
+                                _weightKg = val;
+                                _triggerCalculation();
+                              });
+                            })
+                      ]),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            if (_results == null)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF121212),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.white.withOpacity(0.06)),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Calorie outputs
-          if (_results != null) ...[
-            const Text(
-              'Recommended Budgets',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            const SizedBox(height: 12),
-
-            // Bento Grid of budgets
-            _buildCalorieResultCard(
-              title: 'WEIGHT LOSS',
-              description: 'Caloric deficit for targeted weight loss',
-              calories: _results!['loss']!,
-              themeColor: const Color(0xFF8B5CF6),
-              icon: Icons.unfold_less_rounded,
-            ),
-            const SizedBox(height: 12),
-            _buildCalorieResultCard(
-              title: 'MAINTENANCE',
-              description: 'Calorie equilibrium for weight stability',
-              calories: _results!['maintenance']!,
-              themeColor: const Color(0xFF3B82F6),
-              icon: Icons.balance_rounded,
-            ),
-            const SizedBox(height: 12),
-            _buildCalorieResultCard(
-              title: 'WEIGHT GAIN',
-              description: 'Caloric surplus for muscle synthesis',
-              calories: _results!['gain']!,
-              themeColor: const Color(0xFF10B981),
-              icon: Icons.unfold_more_rounded,
-            ),
-          ]
-        ],
+                child: Column(
+                  children: [
+                    const Icon(Icons.local_fire_department_rounded, size: 44, color: Color(0xFF7C3AED)),
+                    const SizedBox(height: 12),
+                    const Text('Calculate your calorie budget', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                    const SizedBox(height: 6),
+                    Text('Fine-tune your body metrics to see a tailored energy plan.', style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.58)), textAlign: TextAlign.center),
+                  ],
+                ),
+              )
+            else ...[
+              const SectionTitle(
+                  title: 'Recommended budgets',
+                  subtitle: 'Choose the plan that fits your goal'),
+              const SizedBox(height: 12),
+              _buildCalorieResultCard(
+                  title: 'WEIGHT LOSS',
+                  description: 'Caloric deficit for targeted weight loss',
+                  calories: _results!['loss']!,
+                  themeColor: const Color(0xFF7C3AED),
+                  icon: Icons.unfold_less_rounded),
+              const SizedBox(height: 12),
+              _buildCalorieResultCard(
+                  title: 'MAINTENANCE',
+                  description: 'Calorie equilibrium for weight stability',
+                  calories: _results!['maintenance']!,
+                  themeColor: const Color(0xFF2563EB),
+                  icon: Icons.balance_rounded),
+              const SizedBox(height: 12),
+              _buildCalorieResultCard(
+                  title: 'WEIGHT GAIN',
+                  description: 'Caloric surplus for muscle synthesis',
+                  calories: _results!['gain']!,
+                  themeColor: const Color(0xFF10B981),
+                  icon: Icons.unfold_more_rounded),
+            ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildMiniGenderButton(String gender) {
-    bool isSel = _gender == gender;
-    return GestureDetector(
+    final isSelected = _gender == gender;
+    return InkWell(
       onTap: () {
         setState(() {
           _gender = gender;
           _triggerCalculation();
         });
       },
+      borderRadius: BorderRadius.circular(999),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSel ? const Color(0xFF8B5CF6) : const Color(0xFF0F172A),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          gender,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: isSel ? Colors.white :Colors.white54,
-          ),
-        ),
+            color: isSelected
+                ? const Color(0xFF7C3AED).withOpacity(0.18)
+                : Colors.white.withOpacity(0.04),
+            borderRadius: BorderRadius.circular(999)),
+        child: Text(gender,
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: isSelected ? Colors.white : Colors.white54)),
       ),
     );
   }
 
-  Widget _buildCalorieResultCard({
-    required String title,
-    required String description,
-    required double calories,
-    required Color themeColor,
-    required IconData icon,
-  }) {
+  Widget _buildCalorieResultCard(
+      {required String title,
+      required String description,
+      required double calories,
+      required Color themeColor,
+      required IconData icon}) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: themeColor.withOpacity(0.12),
-        ),
-      ),
+          color: const Color(0xFF121212),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.06))),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: themeColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: themeColor, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: themeColor, letterSpacing: 0.8),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.4)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${calories.round()}',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                ),
-              ),
-              const Text(
-                'kcal / day',
-                style: TextStyle(fontSize: 10, color: Colors.white54),
-              )
-            ],
-          )
+          Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                  color: themeColor.withOpacity(0.16),
+                  borderRadius: BorderRadius.circular(16)),
+              child: Icon(icon, color: themeColor)),
+          const SizedBox(width: 14),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(title,
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white)),
+                const SizedBox(height: 4),
+                Text(description,
+                    style: TextStyle(
+                        fontSize: 12, color: Colors.white.withOpacity(0.56)))
+              ])),
+          Text('${calories.round()} kcal',
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: themeColor)),
         ],
       ),
     );

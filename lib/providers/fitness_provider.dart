@@ -1,18 +1,19 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/weight_entry.dart';
 import '../models/bmi_record.dart';
 import '../models/achievement_badge.dart';
+import '../models/user_profile.dart';
+import '../services/storage_service.dart';
 
 class FitnessProvider extends ChangeNotifier {
-  late SharedPreferences _prefs;
   bool _isInitialized = false;
 
   List<WeightEntry> _weightEntries = [];
   List<BmiRecord> _bmiRecords = [];
   double _goalWeight = 70.0;
   List<AchievementBadge> _badges = [];
+  UserProfile _userProfile = UserProfile();
 
   FitnessProvider() {
     _initBadges();
@@ -24,8 +25,50 @@ class FitnessProvider extends ChangeNotifier {
   List<BmiRecord> get bmiRecords => _bmiRecords;
   double get goalWeight => _goalWeight;
   List<AchievementBadge> get badges => _badges;
+  UserProfile get userProfile => _userProfile;
+  double get currentWeight => _weightEntries.isNotEmpty
+      ? _weightEntries.first.weight
+      : _userProfile.weightKg;
+  double get highestWeight => _weightEntries.isEmpty
+      ? currentWeight
+      : _weightEntries.reduce((a, b) => a.weight > b.weight ? a : b).weight;
+  double get lowestWeight => _weightEntries.isEmpty
+      ? currentWeight
+      : _weightEntries.reduce((a, b) => a.weight < b.weight ? a : b).weight;
+  double get averageWeight {
+    if (_weightEntries.isEmpty) return currentWeight;
+    final total =
+        _weightEntries.fold<double>(0, (sum, entry) => sum + entry.weight);
+    return total / _weightEntries.length;
+  }
 
-  // Initialize static/unlocked badges
+  String get weightTrendLabel {
+    if (_weightEntries.length < 2) return 'Stable';
+    final chronEntries = List<WeightEntry>.from(_weightEntries)
+      ..sort((a, b) => a.date.compareTo(b.date));
+    final first = chronEntries.first.weight;
+    final last = chronEntries.last.weight;
+    final delta = last - first;
+    if (delta > 0.3) return 'Trending Up';
+    if (delta < -0.3) return 'Trending Down';
+    return 'Stable';
+  }
+
+  double get averageWeeklyChange {
+    if (_weightEntries.length < 2) return 0.0;
+    final sorted = List<WeightEntry>.from(_weightEntries)
+      ..sort((a, b) => a.date.compareTo(b.date));
+    final first = sorted.first.date;
+    final last = sorted.last.date;
+    final days = last.difference(first).inDays;
+    if (days <= 0) return 0.0;
+    final delta = sorted.last.weight - sorted.first.weight;
+    return delta / (days / 7);
+  }
+
+  double get latestBmi =>
+      _bmiRecords.isNotEmpty ? _bmiRecords.first.score : 0.0;
+
   void _initBadges() {
     _badges = [
       AchievementBadge(
@@ -62,53 +105,70 @@ class FitnessProvider extends ChangeNotifier {
   }
 
   Future<void> _loadFromPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
+    _goalWeight = await StorageService.getGoalWeight();
 
-    // Load Goal Weight
-    _goalWeight = _prefs.getDouble('goal_weight') ?? 70.0;
+    final weightJson = await StorageService.getWeightEntries();
+    _weightEntries = weightJson.map((e) => WeightEntry.fromJson(e)).toList();
+    _weightEntries.sort((a, b) => b.date.compareTo(a.date));
 
-    // Load Weight Entries
-    final weightJson = _prefs.getStringList('weight_entries') ?? [];
-    _weightEntries = weightJson
-        .map((e) => WeightEntry.fromJson(e))
-        .toList();
-    _weightEntries.sort((a, b) => b.date.compareTo(a.date)); // descending dates
-
-    // Load BMI Records
-    final bmiJson = _prefs.getStringList('bmi_records') ?? [];
-    _bmiRecords = bmiJson
-        .map((e) => BmiRecord.fromJson(e))
-        .toList();
+    final bmiJson = await StorageService.getBmiRecords();
+    _bmiRecords = bmiJson.map((e) => BmiRecord.fromJson(e)).toList();
     _bmiRecords.sort((a, b) => b.date.compareTo(a.date));
 
-    // Evaluate Achievements
+    final profileJson = await StorageService.getUserProfile();
+    if (profileJson != null) {
+      _userProfile = UserProfile.fromMap(jsonDecode(profileJson));
+    }
+
+    final unlocked = await StorageService.getUnlockedBadges();
+    if (unlocked.isNotEmpty) {
+      for (final badge in _badges) {
+        if (unlocked.contains(badge.id)) {
+          _badges[_badges.indexOf(badge)] =
+              badge.copyWith(isUnlocked: true, unlockedAt: DateTime.now());
+        }
+      }
+    }
+
     _checkAndUnlockAchievements();
 
     _isInitialized = true;
     notifyListeners();
   }
 
-  // Save changes to SharedPreferences
   Future<void> _saveWeightEntries() async {
     final list = _weightEntries.map((e) => e.toJson()).toList();
-    await _prefs.setStringList('weight_entries', list);
+    await StorageService.saveWeightEntries(list);
   }
 
   Future<void> _saveBmiRecords() async {
     final list = _bmiRecords.map((e) => e.toJson()).toList();
-    await _prefs.setStringList('bmi_records', list);
+    await StorageService.saveBmiRecords(list);
   }
 
-  // Goal Management
+  Future<void> resetData() async {
+    _weightEntries = [];
+    _bmiRecords = [];
+    _goalWeight = 70.0;
+    _userProfile = UserProfile();
+    _initBadges();
+    await StorageService.saveWeightEntries([]);
+    await StorageService.saveBmiRecords([]);
+    await StorageService.saveGoalWeight(70.0);
+    await StorageService.saveUserProfile(jsonEncode(_userProfile.toMap()));
+    await StorageService.saveUnlockedBadges([]);
+    notifyListeners();
+  }
+
   Future<void> setGoalWeight(double weight) async {
     _goalWeight = weight;
-    await _prefs.setDouble('goal_weight', weight);
+    await StorageService.saveGoalWeight(weight);
     _checkAndUnlockAchievements();
     notifyListeners();
   }
 
-  // Weight entry CRUD
-  Future<void> addWeightEntry(double weight, DateTime date, String notes) async {
+  Future<void> addWeightEntry(
+      double weight, DateTime date, String notes) async {
     final entry = WeightEntry(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       weight: weight,
@@ -122,7 +182,8 @@ class FitnessProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateWeightEntry(String id, double weight, DateTime date, String notes) async {
+  Future<void> updateWeightEntry(
+      String id, double weight, DateTime date, String notes) async {
     final index = _weightEntries.indexWhere((element) => element.id == id);
     if (index != -1) {
       _weightEntries[index] = WeightEntry(
@@ -144,8 +205,8 @@ class FitnessProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // BMI Record CRUD
-  Future<void> addBmiRecord(double score, String category, double height, double weight) async {
+  Future<void> addBmiRecord(
+      double score, String category, double height, double weight) async {
     final record = BmiRecord(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       score: score,
@@ -159,7 +220,23 @@ class FitnessProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Calorie Calculations
+  Future<void> updateUserProfile(
+      {String? name,
+      double? heightCm,
+      double? weightKg,
+      int? age,
+      String? gender}) async {
+    _userProfile = _userProfile.copyWith(
+      name: name,
+      heightCm: heightCm,
+      weightKg: weightKg,
+      age: age,
+      gender: gender,
+    );
+    await StorageService.saveUserProfile(jsonEncode(_userProfile.toMap()));
+    notifyListeners();
+  }
+
   Map<String, double> calculateCalories({
     required double height,
     required double weight,
@@ -167,7 +244,6 @@ class FitnessProvider extends ChangeNotifier {
     required String gender,
     required String activityLevel,
   }) {
-    // Harris-Benedict formulation
     double bmr = 0;
     if (gender.toLowerCase() == 'male') {
       bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
@@ -175,7 +251,7 @@ class FitnessProvider extends ChangeNotifier {
       bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
     }
 
-    double multiplexer = 1.2; // Sedentary
+    double multiplexer = 1.2;
     switch (activityLevel) {
       case 'Sedentary':
         multiplexer = 1.2;
@@ -198,32 +274,24 @@ class FitnessProvider extends ChangeNotifier {
     double loss = maintenance - 500;
     double gain = maintenance + 500;
 
-    return {
-      'maintenance': maintenance,
-      'loss': loss,
-      'gain': gain,
-    };
+    return {'maintenance': maintenance, 'loss': loss, 'gain': gain};
   }
 
-  // Streaks and statistics
   int get trackingStreak {
     if (_weightEntries.isEmpty) return 0;
-    
-    // Sort ascending for chronological tracking
+
     final chronList = List<WeightEntry>.from(_weightEntries)
       ..sort((a, b) => a.date.compareTo(b.date));
-
-    // Get unique dates
     final uniqueDates = chronList
         .map((e) => DateTime(e.date.year, e.date.month, e.date.day))
         .toSet()
         .toList();
 
     int streak = 0;
-    DateTime today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    DateTime today =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     DateTime yesterday = today.subtract(const Duration(days: 1));
 
-    // If no weight entry today or yesterday, streak is broken 
     if (!uniqueDates.contains(today) && !uniqueDates.contains(yesterday)) {
       return 0;
     }
@@ -239,7 +307,6 @@ class FitnessProvider extends ChangeNotifier {
 
   double get lostOrGained {
     if (_weightEntries.length < 2) return 0.0;
-    // First vs current
     final chronEntries = List<WeightEntry>.from(_weightEntries)
       ..sort((a, b) => a.date.compareTo(b.date));
     return chronEntries.last.weight - chronEntries.first.weight;
@@ -247,17 +314,15 @@ class FitnessProvider extends ChangeNotifier {
 
   double get goalProgressPercentage {
     if (_weightEntries.isEmpty) return 0.0;
-    double currentWeight = _weightEntries.first.weight;
-    
-    // Pick the earliest entry to see initial starting point
+    final currentWeight = _weightEntries.first.weight;
     final chronEntries = List<WeightEntry>.from(_weightEntries)
       ..sort((a, b) => a.date.compareTo(b.date));
-    double startWeight = chronEntries.first.weight;
+    final startWeight = chronEntries.first.weight;
 
     if ((startWeight - _goalWeight).abs() < 0.1) return 100.0;
 
-    double totalToLoseOrGain = startWeight - _goalWeight;
-    double currentProgress = startWeight - currentWeight;
+    final totalToLoseOrGain = startWeight - _goalWeight;
+    final currentProgress = startWeight - currentWeight;
 
     double percentage = (currentProgress / totalToLoseOrGain) * 100;
     if (percentage < 0) return 0.0;
@@ -279,25 +344,26 @@ class FitnessProvider extends ChangeNotifier {
         trigger = true;
       } else if (badge.id == 'badge_30_day' && trackingStreak >= 30) {
         trigger = true;
-      } else if (badge.id == 'badge_consistency_champion' && _weightEntries.length >= 5) {
+      } else if (badge.id == 'badge_consistency_champion' &&
+          _weightEntries.length >= 5) {
         trigger = true;
-      } else if (badge.id == 'badge_goal_achieved' && _weightEntries.isNotEmpty) {
-        double currentWeight = _weightEntries.first.weight;
-        // See if starting weight was heavier or lighter than goal
-        final chronEntries = List<WeightEntry>.from(_weightEntries)..sort((a, b) => a.date.compareTo(b.date));
-        double startWeight = chronEntries.first.weight;
-        
+      } else if (badge.id == 'badge_goal_achieved' &&
+          _weightEntries.isNotEmpty) {
+        final currentWeight = _weightEntries.first.weight;
+        final chronEntries = List<WeightEntry>.from(_weightEntries)
+          ..sort((a, b) => a.date.compareTo(b.date));
+        final startWeight = chronEntries.first.weight;
+
         if (startWeight >= _goalWeight) {
-          // Weight loss goal
           if (currentWeight <= _goalWeight) trigger = true;
         } else {
-          // Weight gain goal
           if (currentWeight >= _goalWeight) trigger = true;
         }
       }
 
       if (trigger) {
-        _badges[i] = badge.copyWith(isUnlocked: true, unlockedAt: DateTime.now());
+        _badges[i] =
+            badge.copyWith(isUnlocked: true, unlockedAt: DateTime.now());
         updated = true;
       }
     }
@@ -308,10 +374,8 @@ class FitnessProvider extends ChangeNotifier {
   }
 
   Future<void> _saveBadgesToPrefs() async {
-    final unlockedBadges = _badges
-        .where((b) => b.isUnlocked)
-        .map((b) => b.id)
-        .toList();
-    await _prefs.setStringList('unlocked_badges', unlockedBadges);
+    final unlockedBadges =
+        _badges.where((b) => b.isUnlocked).map((b) => b.id).toList();
+    await StorageService.saveUnlockedBadges(unlockedBadges);
   }
 }

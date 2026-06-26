@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../providers/fitness_provider.dart';
+import '../../widgets/chart_card.dart';
+import '../../widgets/section_title.dart';
+import '../../widgets/stat_card.dart';
 
 class AnalyticsThemeTab extends StatelessWidget {
   const AnalyticsThemeTab({super.key});
@@ -13,242 +16,202 @@ class AnalyticsThemeTab extends StatelessWidget {
     final entries = fitness.weightEntries;
     final bmis = fitness.bmiRecords;
 
-    double currentWeight = entries.isNotEmpty ? entries.first.weight : 75.0;
-    double latestBmi = bmis.isNotEmpty ? bmis.first.score : 23.4;
+    final currentWeight = entries.isNotEmpty ? entries.first.weight : 75.0;
+    final latestBmi = bmis.isNotEmpty ? bmis.first.score : 23.4;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          const Text(
-            'Insights & Profile',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Detailed trend reviews, achievements, and statistics',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.white.withOpacity(0.48),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Profile Summary Banner (Screen 9)
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.04)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'PROFILE BRIEF',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white38, letterSpacing: 0.8),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildProfileStat('Current Weight', '${currentWeight.toStringAsFixed(1)} kg'),
-                    _buildProfileStat('Goal Weight', '${fitness.goalWeight.toStringAsFixed(1)} kg'),
-                    _buildProfileStat('Latest BMI', latestBmi.toStringAsFixed(1)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Weight Trend Charts (Screen 6)
-          const Text(
-            'Weight & BMI Trends',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          const SizedBox(height: 12),
-
-          if (entries.isEmpty || entries.length < 2)
+    return Material(
+      color: Colors.transparent,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SectionTitle(
+                title: 'Insights & profile',
+                subtitle: 'A premium snapshot of your progress'),
+            const SizedBox(height: 18),
             Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.show_chart_rounded, size: 40, color: Colors.white24),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Log 2 or more weighings to generate charts',
-                      style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.35)),
-                    )
-                  ],
-                ),
-              ),
-            )
-          else ...[
-            // Weight Line Chart
-            Container(
-              height: 220,
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: LineChart(
-                LineChartData(
-                  gridData: const FlGridData(show: false),
-                  titlesData: const FlTitlesData(
-                    show: true,
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 32)),
-                  ),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: _getWeightSpots(entries),
-                      isCurved: true,
-                      color: const Color(0xFF8B5CF6),
-                      barWidth: 3.5,
-                      dotData: const FlDotData(show: true),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: const Color(0xFF8B5CF6).withOpacity(0.12),
-                      ),
-                    ),
+                  gradient: const LinearGradient(
+                      colors: [Color(0xFF7C3AED), Color(0xFF2563EB)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight),
+                  borderRadius: BorderRadius.circular(24)),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Profile brief',
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
+                            letterSpacing: 1.2)),
+                    const SizedBox(height: 12),
+                    Row(children: [
+                      Expanded(
+                          child: StatCard(
+                              label: 'Current weight',
+                              value: '${currentWeight.toStringAsFixed(1)} kg',
+                              subtitle: 'Latest log',
+                              icon: Icons.monitor_weight_rounded,
+                              accent: Colors.white,
+                              isCompact: true)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                          child: StatCard(
+                              label: 'Goal weight',
+                              value:
+                                  '${fitness.goalWeight.toStringAsFixed(1)} kg',
+                              subtitle: 'Target',
+                              icon: Icons.track_changes_rounded,
+                              accent: Colors.white,
+                              isCompact: true))
+                    ]),
+                    const SizedBox(height: 12),
+                    StatCard(
+                        label: 'Latest BMI',
+                        value: latestBmi.toStringAsFixed(1),
+                        subtitle: 'Body score',
+                        icon: Icons.calculate_rounded,
+                        accent: Colors.white,
+                        isCompact: true),
+                  ]),
+            ),
+            const SizedBox(height: 22),
+            const SectionTitle(
+                title: 'Weight trends',
+                subtitle: 'Clear visual checkpoints over time'),
+            const SizedBox(height: 12),
+            if (entries.isEmpty || entries.length < 2)
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                    color: const Color(0xFF121212),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: Colors.white.withOpacity(0.06))),
+                child: Center(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                      Icon(Icons.show_chart_rounded,
+                          size: 40, color: Colors.white24),
+                      const SizedBox(height: 10),
+                      Text('Log 2 or more weighings to generate charts',
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.35)))
+                    ])),
+              )
+            else
+              ChartCard(
+                  title: 'Weight trend',
+                  subtitle: 'Chronological curve from your recent logs',
+                  spots: _getWeightSpots(entries),
+                  color: const Color(0xFF7C3AED)),
+            const SizedBox(height: 22),
+            if (entries.isEmpty || entries.length < 2)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF121212),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.white.withOpacity(0.06)),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.insights_rounded, size: 44, color: Color(0xFF7C3AED)),
+                    const SizedBox(height: 12),
+                    const Text('Charts will appear after you log weights', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                    const SizedBox(height: 6),
+                    Text('A few weigh-ins unlock rich trend insights and milestone tracking.', style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.58)), textAlign: TextAlign.center),
                   ],
                 ),
-              ),
-            ),
+              )
+            else
+              const SizedBox.shrink(),
+            const SizedBox(height: 22),
+            const SectionTitle(
+                title: 'Unlocked achievements',
+                subtitle: 'Milestones that keep the streak alive'),
             const SizedBox(height: 12),
-            Text(
-              'Chronological Weight Curve (Y-axis: kg, X-axis: entry indices)',
-              style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.36)),
-            ),
-          ],
-          const SizedBox(height: 24),
-
-          // Badge Achievement System Page Sector (Unlocked/Locked)
-          const Text(
-            'Unlocked Achievements',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          const SizedBox(height: 12),
-
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: fitness.badges.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final badge = fitness.badges[index];
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: badge.isUnlocked 
-                        ? const Color(0xFF10B981).withOpacity(0.2) 
-                        : Colors.white.withOpacity(0.04),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    // Badge Circle Indicator
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: fitness.badges.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final badge = fitness.badges[index];
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFF121212),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                          color: badge.isUnlocked
+                              ? const Color(0xFF10B981).withOpacity(0.2)
+                              : Colors.white.withOpacity(0.06))),
+                  child: Row(children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: badge.isUnlocked 
-                            ? const Color(0xFF10B981).withOpacity(0.12) 
-                            : Colors.white.withOpacity(0.03),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        badge.isUnlocked ? Icons.verified_rounded : Icons.lock_outline_rounded,
-                        color: badge.isUnlocked ? const Color(0xFF10B981) : Colors.white24,
-                        size: 26,
-                      ),
-                    ),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                            color: badge.isUnlocked
+                                ? const Color(0xFF10B981).withOpacity(0.12)
+                                : Colors.white.withOpacity(0.03),
+                            shape: BoxShape.circle),
+                        child: Icon(
+                            badge.isUnlocked
+                                ? Icons.verified_rounded
+                                : Icons.lock_outline_rounded,
+                            color: badge.isUnlocked
+                                ? const Color(0xFF10B981)
+                                : Colors.white24,
+                            size: 24)),
                     const SizedBox(width: 14),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            badge.title,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: badge.isUnlocked ? Colors.white : Colors.white38,
-                            ),
-                          ),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text(badge.title,
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: badge.isUnlocked
+                                      ? Colors.white
+                                      : Colors.white38)),
                           const SizedBox(height: 2),
-                          Text(
-                            badge.description,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: badge.isUnlocked ? Colors.white.withOpacity(0.48) : Colors.white.withOpacity(0.18),
-                            ),
-                          ),
+                          Text(badge.description,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: badge.isUnlocked
+                                      ? Colors.white.withOpacity(0.5)
+                                      : Colors.white.withOpacity(0.18))),
                           if (badge.isUnlocked && badge.unlockedAt != null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              'Forged on ${DateFormat('yyyy-MM-dd').format(badge.unlockedAt!)}',
-                              style: const TextStyle(fontSize: 9, color: Color(0xFF10B981), fontWeight: FontWeight.bold),
-                            )
+                                'Forged on ${DateFormat('yyyy-MM-dd').format(badge.unlockedAt!)}',
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Color(0xFF10B981),
+                                    fontWeight: FontWeight.w700))
                           ]
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+                        ]))
+                  ]),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
   List<FlSpot> _getWeightSpots(List<dynamic> entries) {
-    // Sort oldest to newest for chronological left-to-right graphs
     final chronEntries = List<dynamic>.from(entries)
       ..sort((a, b) => a.date.compareTo(b.date));
-
-    List<FlSpot> spots = [];
-    for (int i = 0; i < chronEntries.length; i++) {
-      spots.add(FlSpot(i.toDouble(), chronEntries[i].weight));
-    }
-    return spots;
-  }
-
-  Widget _buildProfileStat(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.4)),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
-        ),
-      ],
-    );
+    return [
+      for (int i = 0; i < chronEntries.length; i++)
+        FlSpot(i.toDouble(), chronEntries[i].weight)
+    ];
   }
 }
