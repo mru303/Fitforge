@@ -120,11 +120,21 @@ class AnalyticsThemeTab extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const Icon(Icons.insights_rounded, size: 44, color: Color(0xFF7C3AED)),
+                    const Icon(Icons.insights_rounded,
+                        size: 44, color: Color(0xFF7C3AED)),
                     const SizedBox(height: 12),
-                    const Text('Charts will appear after you log weights', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                    const Text('Charts will appear after you log weights',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white)),
                     const SizedBox(height: 6),
-                    Text('A few weigh-ins unlock rich trend insights and milestone tracking.', style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.58)), textAlign: TextAlign.center),
+                    Text(
+                        'A few weigh-ins unlock rich trend insights and milestone tracking.',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.58)),
+                        textAlign: TextAlign.center),
                   ],
                 ),
               )

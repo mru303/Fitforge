@@ -261,11 +261,21 @@ class _CaloriesTabState extends State<CaloriesTab> {
                 ),
                 child: Column(
                   children: [
-                    const Icon(Icons.local_fire_department_rounded, size: 44, color: Color(0xFF7C3AED)),
+                    const Icon(Icons.local_fire_department_rounded,
+                        size: 44, color: Color(0xFF7C3AED)),
                     const SizedBox(height: 12),
-                    const Text('Calculate your calorie budget', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                    const Text('Calculate your calorie budget',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white)),
                     const SizedBox(height: 6),
-                    Text('Fine-tune your body metrics to see a tailored energy plan.', style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.58)), textAlign: TextAlign.center),
+                    Text(
+                        'Fine-tune your body metrics to see a tailored energy plan.',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.58)),
+                        textAlign: TextAlign.center),
                   ],
                 ),
               )

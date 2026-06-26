@@ -300,16 +300,25 @@ class _BmiTabState extends State<BmiTab> with SingleTickerProviderStateMixin {
                       color: const Color(0xFF7C3AED).withOpacity(0.16),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(Icons.insights_rounded, color: Color(0xFF7C3AED)),
+                    child: const Icon(Icons.insights_rounded,
+                        color: Color(0xFF7C3AED)),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('No BMI result yet', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
+                        const Text('No BMI result yet',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
                         const SizedBox(height: 4),
-                        Text('Adjust your height and weight to unlock a fresh BMI insight.', style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.6))),
+                        Text(
+                            'Adjust your height and weight to unlock a fresh BMI insight.',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withOpacity(0.6))),
                       ],
                     ),
                   ),

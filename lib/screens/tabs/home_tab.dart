@@ -195,7 +195,10 @@ class HomeTab extends StatelessWidget {
                 children: [
                   const Text(
                     'Weight This Week',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white),
                   ),
                   const SizedBox(height: 8),
                   if (entries.length < 2)
@@ -204,9 +207,14 @@ class HomeTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         child: Column(
                           children: [
-                            Icon(Icons.show_chart_rounded, size: 38, color: Colors.white24),
+                            Icon(Icons.show_chart_rounded,
+                                size: 38, color: Colors.white24),
                             const SizedBox(height: 10),
-                            const Text('No weight history yet.\nStart logging your journey.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, height: 1.4)),
+                            const Text(
+                                'No weight history yet.\nStart logging your journey.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.white70, height: 1.4)),
                             const SizedBox(height: 12),
                             FilledButton.icon(
                               onPressed: () {
@@ -218,7 +226,8 @@ class HomeTab extends StatelessWidget {
                               style: FilledButton.styleFrom(
                                 backgroundColor: const Color(0xFF7C3AED),
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(999)),
                               ),
                             ),
                           ],
@@ -248,7 +257,8 @@ class HomeTab extends StatelessWidget {
                                 dotData: const FlDotData(show: false),
                                 belowBarData: BarAreaData(
                                   show: true,
-                                  color: const Color(0xFF7C3AED).withOpacity(0.16),
+                                  color:
+                                      const Color(0xFF7C3AED).withOpacity(0.16),
                                 ),
                               ),
                             ],
@@ -418,22 +428,26 @@ class HomeTab extends StatelessWidget {
       'Discipline beats motivation.',
       'Strong today. Stronger tomorrow.',
     ];
-    final index = Random(DateTime.now().millisecondsSinceEpoch).nextInt(quotes.length);
+    final index =
+        Random(DateTime.now().millisecondsSinceEpoch).nextInt(quotes.length);
     return quotes[index];
   }
 
   double _lowest(List<dynamic> entries) {
-    return entries.fold<double>(double.infinity, (value, entry) => entry.weight < value ? entry.weight : value);
+    return entries.fold<double>(double.infinity,
+        (value, entry) => entry.weight < value ? entry.weight : value);
   }
 
   double _highest(List<dynamic> entries) {
-    return entries.fold<double>(0, (value, entry) => entry.weight > value ? entry.weight : value);
+    return entries.fold<double>(
+        0, (value, entry) => entry.weight > value ? entry.weight : value);
   }
 
   List<FlSpot> _buildWeeklySpots(List<dynamic> entries) {
     final sorted = List<dynamic>.from(entries)
       ..sort((a, b) => a.date.compareTo(b.date));
-    final slice = sorted.length > 7 ? sorted.sublist(sorted.length - 7) : sorted;
+    final slice =
+        sorted.length > 7 ? sorted.sublist(sorted.length - 7) : sorted;
     return [
       for (int i = 0; i < slice.length; i++)
         FlSpot(i.toDouble(), slice[i].weight),

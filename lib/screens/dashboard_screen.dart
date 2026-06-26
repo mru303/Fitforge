@@ -67,9 +67,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(height: 18),
-              _profileRow('Current weight', '${fitness.currentWeight.toStringAsFixed(1)} kg'),
-              _profileRow('Goal weight', '${fitness.goalWeight.toStringAsFixed(1)} kg'),
-              _profileRow('Height', '${fitness.userProfile.heightCm.toStringAsFixed(0)} cm'),
+              _profileRow('Current weight',
+                  '${fitness.currentWeight.toStringAsFixed(1)} kg'),
+              _profileRow(
+                  'Goal weight', '${fitness.goalWeight.toStringAsFixed(1)} kg'),
+              _profileRow('Height',
+                  '${fitness.userProfile.heightCm.toStringAsFixed(0)} cm'),
               _profileRow('Theme', 'Matte Black'),
               _profileRow('Units', 'Metric'),
               const SizedBox(height: 16),
@@ -82,7 +85,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     if (context.mounted) {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Data reset successfully')),
+                        const SnackBar(
+                            content: Text('Data reset successfully')),
                       );
                     }
                   },
@@ -121,11 +125,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.62)),
+            style:
+                TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.62)),
           ),
           Text(
             value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
           ),
         ],
       ),
@@ -153,7 +159,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.local_fire_department_rounded, size: 15, color: Color(0xFFF59E0B)),
+                const Icon(Icons.local_fire_department_rounded,
+                    size: 15, color: Color(0xFFF59E0B)),
                 const SizedBox(width: 6),
                 Consumer<FitnessProvider>(
                   builder: (context, fitness, _) => Text(
@@ -209,20 +216,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF0D0D0D),
-          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.06), width: 1)),
+          border: Border(
+              top: BorderSide(color: Colors.white.withOpacity(0.06), width: 1)),
         ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
-          onDestinationSelected: (index) => setState(() => _currentIndex = index),
+          onDestinationSelected: (index) =>
+              setState(() => _currentIndex = index),
           backgroundColor: Colors.transparent,
           indicatorColor: const Color(0xFF7C3AED).withOpacity(0.18),
           labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
           destinations: const [
-            NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-            NavigationDestination(icon: Icon(Icons.scale_outlined), selectedIcon: Icon(Icons.scale), label: 'Tracker'),
-            NavigationDestination(icon: Icon(Icons.calculate_outlined), selectedIcon: Icon(Icons.calculate), label: 'BMI'),
-            NavigationDestination(icon: Icon(Icons.local_fire_department_outlined), selectedIcon: Icon(Icons.local_fire_department), label: 'Calories'),
-            NavigationDestination(icon: Icon(Icons.bar_chart_outlined), selectedIcon: Icon(Icons.bar_chart), label: 'Insights'),
+            NavigationDestination(
+                icon: Icon(Icons.dashboard_outlined),
+                selectedIcon: Icon(Icons.dashboard),
+                label: 'Dashboard'),
+            NavigationDestination(
+                icon: Icon(Icons.scale_outlined),
+                selectedIcon: Icon(Icons.scale),
+                label: 'Tracker'),
+            NavigationDestination(
+                icon: Icon(Icons.calculate_outlined),
+                selectedIcon: Icon(Icons.calculate),
+                label: 'BMI'),
+            NavigationDestination(
+                icon: Icon(Icons.local_fire_department_outlined),
+                selectedIcon: Icon(Icons.local_fire_department),
+                label: 'Calories'),
+            NavigationDestination(
+                icon: Icon(Icons.bar_chart_outlined),
+                selectedIcon: Icon(Icons.bar_chart),
+                label: 'Insights'),
           ],
         ),
       ),
